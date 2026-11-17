@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-clipugc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n community node for ClipUGC. Make short vertical UGC videos for your app with AI influencers who keep the same face.",
   "license": "MIT",
   "homepage": "https://clipugc.com",
