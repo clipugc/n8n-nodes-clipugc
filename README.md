@@ -1,5 +1,7 @@
 # n8n-nodes-clipugc
 
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-clipugc.svg)](https://www.npmjs.com/package/n8n-nodes-clipugc)
+
 This is an n8n community node. It lets you use [ClipUGC](https://clipugc.com) in your n8n workflows.
 
 ClipUGC makes short vertical UGC videos for mobile apps. An AI influencer reacts in a silent clip, your app screen recording plays after it, and a hook line sits on top as text. The same AI influencer keeps the same face in every clip.
@@ -122,7 +124,7 @@ npm test
 npm run dev
 ```
 
-`npm run dev` starts a local n8n with this node loaded. See [PUBLISHING.md](PUBLISHING.md) for release steps.
+`npm run dev` starts a local n8n with this node loaded. A release is a version tag: GitHub Actions publishes it to npm with a provenance statement.
 
 ## License
 
