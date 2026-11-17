@@ -1,0 +1,1707 @@
+{
+  "name": "ClipUGC: UGC video with an AI influencer (HTTP Request nodes)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "57f0e37f-54e3-580d-a18b-6beb639a0902",
+      "name": "Run workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1867de2c-3861-4a5c-a070-923e15062ff1",
+              "name": "base_url",
+              "value": "https://clipugc.com/api/v2",
+              "type": "string"
+            },
+            {
+              "id": "46fe19cf-7ddb-459c-ad4e-258aa27b6450",
+              "name": "influencer_mode",
+              "value": "public",
+              "type": "string"
+            },
+            {
+              "id": "e3ad3abb-b63e-4334-b6b4-4603b561417d",
+              "name": "influencer_description",
+              "value": "A friendly person in their late twenties with short dark hair, wearing a plain hoodie, sitting on a sofa at home",
+              "type": "string"
+            },
+            {
+              "id": "d512de9e-6121-44a5-a221-fe8cc289efff",
+              "name": "clip_prompt",
+              "value": "Looks down at the phone, eyes go wide in surprise, then looks up at the camera and smiles",
+              "type": "string"
+            },
+            {
+              "id": "664c4660-23ca-4ae3-86fe-f1f09b09e379",
+              "name": "app_recording_url",
+              "value": "https://example.com/your-app-screen-recording.mp4",
+              "type": "string"
+            },
+            {
+              "id": "3a857c2d-0383-4b53-adeb-9e33074e0352",
+              "name": "hook_text",
+              "value": "POV: you found the app that plans your whole week",
+              "type": "string"
+            },
+            {
+              "id": "e987164b-1282-4212-b4d4-af50fa53877a",
+              "name": "poll_every_seconds",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "666a0613-ba13-4571-9eff-1b554efa0722",
+              "name": "max_checks",
+              "value": 60,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5aca182d-8338-577f-ae09-63bd2bc7771b",
+      "name": "Your settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.base_url }}/credits",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "9d35f879-e43f-517e-bdaf-454710dcd656",
+      "name": "Get balance and prices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "212ad357-86f1-40f2-b0a8-961521c232c9",
+              "leftValue": "={{ $json.statusCode }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": 200
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1b464e75-6b7c-5648-ab54-4aeca20930ad",
+      "name": "API key works?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "19a5e9b8-3f30-47e2-9fd0-86146f16d02c",
+              "leftValue": "={{ $('Your settings').first().json.influencer_mode }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "public"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "77e6c2ba-0a41-56aa-88bc-034f4480f9ea",
+      "name": "Use a public AI influencer?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Your settings').first().json.base_url }}/ai-characters?scope=discover&per_page=50",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "82d48e01-b0c4-576f-87f1-4a6363ba9f18",
+      "name": "List public AI influencers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1af1eb4-457b-4291-aecc-1cde8c56e393",
+              "name": "look_id",
+              "value": "={{ ($json.data?.ai_characters ?? []).find(c => !c.is_locked && c.cover_image)?.cover_image.id ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "97ea0a27-8133-4f97-ace7-bb0edbcc23d5",
+              "name": "ai_influencer_id",
+              "value": "={{ ($json.data?.ai_characters ?? []).find(c => !c.is_locked && c.cover_image)?.id ?? 0 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "42759d07-3b76-58ce-9dfd-ac9c9a4825cd",
+      "name": "Pick a public look",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Your settings').first().json.base_url }}/ai-characters",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ description: $('Your settings').first().json.influencer_description }) }}"
+      },
+      "id": "e539d074-15ea-5965-a464-3e9991ab2c57",
+      "name": "Create AI influencer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "83ab91a6-2e9c-4210-8d9b-004a274febb2",
+              "leftValue": "={{ $json.statusCode }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": 201
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1de2f06a-8764-5bb4-82ef-b13ff26d42af",
+      "name": "AI influencer started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Your settings').first().json.poll_every_seconds }}",
+        "unit": "seconds"
+      },
+      "id": "b4156a95-bf17-59e8-85b8-8cba52c3381d",
+      "name": "Wait for the look",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        620
+      ],
+      "webhookId": "8591c8b3-b039-5e27-ac67-074517f42a27"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Your settings').first().json.base_url }}/character-images/{{ $('Create AI influencer').first().json.data.reference_images[0].id }}/check-status",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "11aa8473-6c79-50a8-aa31-31a07c410ff8",
+      "name": "Check the look",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0b6c1294-2e50-4fcb-8c4e-525a132f06ce",
+              "leftValue": "={{ $json.data?.status }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "completed"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1846ee22-4b85-54d0-8a63-1fc61130aab7",
+      "name": "Look ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "37a81dbc-d47c-4871-9d49-10dfcbc79dfa",
+              "leftValue": "={{ ['pending', 'processing'].includes($json.data?.status) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "df1bcda7-b2dc-4a9b-adb6-47dd47619adc",
+              "leftValue": "={{ $runIndex }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              },
+              "rightValue": "={{ $('Your settings').first().json.max_checks - 1 }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "a846711b-4b59-587b-ba89-6f3ec05324a2",
+      "name": "Keep waiting for the look?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a288c197-1937-4a50-96e4-6a3fdb7cb694",
+              "name": "look_id",
+              "value": "={{ $json.data.id }}",
+              "type": "number"
+            },
+            {
+              "id": "9e3637b2-eed9-44a5-a8a5-335f5e09004a",
+              "name": "ai_influencer_id",
+              "value": "={{ $json.data.ai_character_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d7773c5-6f4f-58b7-bfdd-b55d1b267660",
+      "name": "Use the new look",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2200,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a951f52d-b75f-477e-b695-33df085c0ff3",
+              "leftValue": "={{ $json.look_id }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "d8dc3aff-25fe-5ac3-8781-746b36e5a826",
+      "name": "Have a look to animate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2420,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Your settings').first().json.base_url }}/character-videos/image-to-video",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ character_reference_image_id: $json.look_id, prompt: $('Your settings').first().json.clip_prompt, duration: 5 }) }}"
+      },
+      "id": "7917ffd0-714e-5612-b525-367d6452ba12",
+      "name": "Create 5 second clip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85769ac4-cd47-464b-a70a-e04b138b838d",
+              "leftValue": "={{ $json.statusCode }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": 201
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "e616a2d1-cc15-513e-8d1e-289b73aec6b0",
+      "name": "Clip started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2860,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Your settings').first().json.poll_every_seconds }}",
+        "unit": "seconds"
+      },
+      "id": "b849c533-24aa-5f3e-8f8d-1b823d00fbae",
+      "name": "Wait for the clip",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3080,
+        400
+      ],
+      "webhookId": "d1e0790e-d35e-5c3c-9157-26530b6d0c19"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Your settings').first().json.base_url }}/character-videos/{{ $('Create 5 second clip').first().json.data.id }}/check-status",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "42529698-2bb8-5d60-8e4e-1aee395fa69e",
+      "name": "Check the clip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3300,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d4c2e29e-6426-49c2-93ce-5a24f937fbec",
+              "leftValue": "={{ $json.data?.status }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "completed"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "b1a76348-e4e2-5695-9d6a-eb94d51ca04e",
+      "name": "Clip ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f22aa991-0c9e-4826-8bbe-0daf05de2978",
+              "leftValue": "={{ ['pending', 'processing'].includes($json.data?.status) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "e1ff0487-fb83-46ce-b66b-583f7880f3be",
+              "leftValue": "={{ $runIndex }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              },
+              "rightValue": "={{ $('Your settings').first().json.max_checks - 1 }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "6b975110-a81e-50b6-a7e8-17aa09cf286c",
+      "name": "Keep waiting for the clip?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Your settings').first().json.base_url }}/uploads/presign",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ purpose: 'app_video', extension: ($('Your settings').first().json.app_recording_url.split('?')[0].split('.').pop() || 'mp4').toLowerCase() }) }}"
+      },
+      "id": "e16917e3-f13d-5d84-903e-6145249bc806",
+      "name": "Get an upload URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3740,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "43f887cd-741b-4ab7-8730-030fdd0acbf1",
+              "leftValue": "={{ $json.statusCode }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": 200
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1da94275-386f-5577-bfb2-7cd8de974673",
+      "name": "Upload URL ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3960,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Your settings').first().json.app_recording_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "id": "2d927e2f-05cb-5010-b0e3-50afc3a2b119",
+      "name": "Download the app recording",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4180,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Get an upload URL').first().json.data.upload_url }}",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify(Object.fromEntries(Object.entries($('Get an upload URL').first().json.data.headers ?? {}).filter(([k]) => k.toLowerCase() !== 'host').map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]))) }}",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "b5e1bf46-5679-55f4-8c82-a755fa8d48e0",
+      "name": "Upload the app recording",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4400,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Your settings').first().json.base_url }}/character-videos/{{ $('Create 5 second clip').first().json.data.id }}/merge",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ app_video_key: $('Get an upload URL').first().json.data.key, hook_text: $('Your settings').first().json.hook_text }) }}"
+      },
+      "id": "3a61eea7-d631-5991-94fd-dcb043cb0660",
+      "name": "Make the finished video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4620,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "96e9a5cc-e27e-474d-a456-1f0ab14f8472",
+              "leftValue": "={{ $json.statusCode }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": 201
+            },
+            {
+              "id": "b936724e-2b97-4597-9071-f45b61c8fe12",
+              "leftValue": "={{ $json.data?.merged_video_id }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "4e245ab0-7e05-572e-a831-a0aee361107b",
+      "name": "Finished video started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4840,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Your settings').first().json.poll_every_seconds }}",
+        "unit": "seconds"
+      },
+      "id": "251b569c-ce51-57ef-9ba2-7713658292d3",
+      "name": "Wait for the finished video",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        5060,
+        400
+      ],
+      "webhookId": "a58023c2-64dc-5c04-abcf-6a5427b8bf88"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Your settings').first().json.base_url }}/merged-videos/{{ $('Make the finished video').first().json.data.merged_video_id }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "0ad8a64f-5ebf-5901-babb-5405a0e87d46",
+      "name": "Check the finished video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5280,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "36e28bff-9654-4e2f-97f3-d80bb553d68d",
+              "leftValue": "={{ $json.data?.status }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "completed"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "2140d1f4-ee22-5422-8557-528bce525b11",
+      "name": "Finished video ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5500,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "744541ba-d6dc-431b-a13f-34936e93322d",
+              "leftValue": "={{ ['pending', 'processing'].includes($json.data?.status) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "018d308d-7484-4a9b-8dd3-55db7034a8cd",
+              "leftValue": "={{ $runIndex }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              },
+              "rightValue": "={{ $('Your settings').first().json.max_checks - 1 }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "90ca19e9-b1b6-5105-bec7-bd760618df31",
+      "name": "Keep waiting for the finished video?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5500,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Your settings').first().json.base_url }}/merged-videos/{{ $('Make the finished video').first().json.data.merged_video_id }}/download",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "fbb0af22-74bb-55ef-9dbe-9d6e6cf9d13d",
+      "name": "Get the download link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5720,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "66dbeb14-b419-4d28-8563-67bc1e7eda0b",
+              "leftValue": "={{ $json.statusCode }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": 200
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "912f99ce-4a49-55de-9055-e9f8fcb8a5ed",
+      "name": "Download link ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5940,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "54f831b9-a923-4ec9-b8c0-80a57ac4b265",
+              "name": "download_url",
+              "value": "={{ $json.data.download_url }}",
+              "type": "string"
+            },
+            {
+              "id": "57ed0180-e4c9-4a6a-b36c-e3db3a79e397",
+              "name": "finished_video_id",
+              "value": "={{ $('Make the finished video').first().json.data.merged_video_id }}",
+              "type": "number"
+            },
+            {
+              "id": "b340ba16-da70-4b20-b6ef-9ec65615ea3e",
+              "name": "clip_id",
+              "value": "={{ $('Create 5 second clip').first().json.data.id }}",
+              "type": "number"
+            },
+            {
+              "id": "5d25dd23-0c31-415e-b3e3-1a94a754887e",
+              "name": "hook_text",
+              "value": "={{ $('Your settings').first().json.hook_text }}",
+              "type": "string"
+            },
+            {
+              "id": "94226677-1186-49d0-91d5-82ee1db49502",
+              "name": "credits_before",
+              "value": "={{ $('Get balance and prices').first().json.data.balance }}",
+              "type": "number"
+            },
+            {
+              "id": "52e1bb4f-4b77-48db-9ee3-0f3420b3f611",
+              "name": "clip_cost",
+              "value": "={{ $('Get balance and prices').first().json.data.costs.clip }}",
+              "type": "number"
+            },
+            {
+              "id": "da1319b8-0633-49b6-b86b-c7e24f6ae201",
+              "name": "finished_video_cost",
+              "value": "={{ $('Get balance and prices').first().json.data.costs.merge }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b71fd377-dae2-5e63-9881-02d0e60f11e1",
+      "name": "Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6160,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $json.statusCode === 1002 ? 'Plan needed (code 1002). ' + ($json.errorMessage ?? 'ClipUGC API keys work on the Professional and Business plans.') : $json.statusCode === 1003 ? 'Out of credits (code 1003). ' + ($json.errorMessage ?? 'Not enough credits for this step') + '. Nothing was charged. Add credits or wait for the monthly credits, then run again.' : $json.statusCode === 401 ? 'ClipUGC did not accept the API key. Check the Header Auth credential: Name is Authorization, Value is Bearer followed by a space and your key.' : $json.statusCode === 429 ? 'Too many requests for this key. Wait a minute and run again.' : 'ClipUGC answered ' + ($json.statusCode ?? 'with an error') + ': ' + ($json.errorMessage ?? $json.message ?? JSON.stringify($json)) }}"
+      },
+      "id": "c8d27f05-d391-5946-ba0c-ab8e382b8208",
+      "name": "Stop: ClipUGC refused the request",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3080,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $json.data?.status === 'failed' ? 'Generation failed. ClipUGC could not make this one. A failed generation gives its credits back. Change the prompt or run again.' : ['pending', 'processing'].includes($json.data?.status) ? 'Still not ready after ' + $('Your settings').first().json.max_checks + ' checks. Nothing is lost. The generation keeps running on ClipUGC. Raise max_checks or look in your ClipUGC dashboard.' : 'ClipUGC answered ' + ($json.statusCode ?? 'with an error') + ': ' + ($json.errorMessage ?? JSON.stringify($json)) }}"
+      },
+      "id": "45bec8f5-b8f3-544d-b13f-50468c6cefcb",
+      "name": "Stop: generation failed or took too long",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3520,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "No AI influencer look was found. If influencer_mode is public, your account sees no unlocked public AI influencer. Set influencer_mode to create and describe your own."
+      },
+      "id": "73f09460-b246-5d63-bb9c-accb7034d66c",
+      "name": "Stop: no look to animate",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## ClipUGC: UGC video with an AI influencer\n\nThis workflow makes one finished vertical UGC video for your app. It uses only HTTP Request nodes and the ClipUGC API.\n\n**What it does**\n1. Reads your credit balance and the current prices.\n2. Picks a public AI influencer, or creates your own from a description.\n3. Makes a 5 second silent reaction clip from your prompt.\n4. Uploads your app screen recording from a URL.\n5. Puts the clip, the recording and your hook line together.\n6. Returns a download link for the finished MP4.\n\n**Set up (2 minutes)**\n1. Create an API key in ClipUGC: Dashboard, then API Keys. API keys need the Professional or Business plan.\n2. In n8n create a **Header Auth** credential. Name: `Authorization`. Value: `Bearer YOUR_KEY`.\n3. Open each HTTP Request node that shows a credential warning and pick that credential.\n4. Open **Your settings** and fill in your prompt, hook line and the URL of your screen recording.\n5. Click **Execute workflow**.\n",
+        "width": 520,
+        "height": 560
+      },
+      "id": "f686c9d6-6d8c-5ade-810f-1d1a2d129821",
+      "name": "Note: start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Your settings\n\n- `influencer_mode`: `public` uses the first public AI influencer your plan unlocks. `create` designs a new one from `influencer_description`.\n- `clip_prompt`: what the AI influencer does in the clip. Movement and expression. No speech, the clip is silent.\n- `app_recording_url`: a direct link to an mp4 or mov of your app screen. n8n must be able to download it.\n- `hook_text`: the line shown on top of the video. At most 150 characters.\n- `poll_every_seconds` and `max_checks`: how often and how many times each wait loop checks. 10 and 60 means it gives up after 10 minutes per step.\n",
+        "width": 520,
+        "height": 330,
+        "color": 4
+      },
+      "id": "f2d0925a-35ab-5339-b83d-91c2f84ac4b0",
+      "name": "Note: settings",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        460,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AI influencer\n\n**Public**: any API key on a paid plan can use the public cast. Nothing to create, no extra credits.\n\n**Create**: one call designs the AI influencer and starts the first look. The loop waits until the look is `completed`.\n\nTo always use the same AI influencer, run once, note `look_id`, then replace this part with a Set node that holds that id.\n",
+        "width": 460,
+        "height": 280,
+        "color": 5
+      },
+      "id": "09729e28-2134-5137-813d-5410f03d49d6",
+      "name": "Note: influencer",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Waiting for a generation\n\nEvery create call answers at once with status `pending`. The Wait node sleeps, the check node asks again, and the IF node leaves the loop when status is `completed`.\n\nThe loop stops by itself when status is `failed` or after `max_checks` checks. It can not run forever.\n",
+        "width": 480,
+        "height": 230,
+        "color": 6
+      },
+      "id": "2d998eac-3989-5d7d-a9fc-4c55455ecb17",
+      "name": "Note: polling",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## App screen recording\n\nThe API takes the recording as a file, not as a link. These three nodes ask ClipUGC for an upload URL, download your file and send it there. The upload node needs no credential.\n\nUploaded files are deleted after 48 hours.\n",
+        "width": 520,
+        "height": 200,
+        "color": 6
+      },
+      "id": "eabbfc8a-46de-51ab-b73e-91441fac33c1",
+      "name": "Note: upload",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3920,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## The three errors you can hit\n\n**Plan needed (HTTP 402, code 1002)**: the API key belongs to an account without the Professional or Business plan. Upgrade, then run again. The key itself stays valid.\n\n**Out of credits (code 1003)**: the account does not have enough credits for this step. ClipUGC charges nothing for a refused call.\n\n**Generation failed**: a look, clip or finished video ended with status `failed`. A failed generation gives its credits back. Change the prompt or run again.\n\nGood to know: ClipUGC answers most errors with HTTP 200 and puts the real code in `statusCode` in the body. That is why every call here is followed by an IF node that reads `statusCode`.\n",
+        "width": 760,
+        "height": 380,
+        "color": 3
+      },
+      "id": "79f28870-049e-5363-a808-fdca785df1cf",
+      "name": "Note: errors",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2380,
+        1240
+      ]
+    }
+  ],
+  "connections": {
+    "Run workflow": {
+      "main": [
+        [
+          {
+            "node": "Your settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your settings": {
+      "main": [
+        [
+          {
+            "node": "Get balance and prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get balance and prices": {
+      "main": [
+        [
+          {
+            "node": "API key works?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API key works?": {
+      "main": [
+        [
+          {
+            "node": "Use a public AI influencer?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: ClipUGC refused the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use a public AI influencer?": {
+      "main": [
+        [
+          {
+            "node": "List public AI influencers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create AI influencer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List public AI influencers": {
+      "main": [
+        [
+          {
+            "node": "Pick a public look",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create AI influencer": {
+      "main": [
+        [
+          {
+            "node": "AI influencer started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI influencer started?": {
+      "main": [
+        [
+          {
+            "node": "Wait for the look",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: ClipUGC refused the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for the look": {
+      "main": [
+        [
+          {
+            "node": "Check the look",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the look": {
+      "main": [
+        [
+          {
+            "node": "Look ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look ready?": {
+      "main": [
+        [
+          {
+            "node": "Use the new look",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keep waiting for the look?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep waiting for the look?": {
+      "main": [
+        [
+          {
+            "node": "Wait for the look",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: generation failed or took too long",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a public look": {
+      "main": [
+        [
+          {
+            "node": "Have a look to animate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use the new look": {
+      "main": [
+        [
+          {
+            "node": "Have a look to animate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Have a look to animate?": {
+      "main": [
+        [
+          {
+            "node": "Create 5 second clip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: no look to animate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create 5 second clip": {
+      "main": [
+        [
+          {
+            "node": "Clip started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clip started?": {
+      "main": [
+        [
+          {
+            "node": "Wait for the clip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: ClipUGC refused the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for the clip": {
+      "main": [
+        [
+          {
+            "node": "Check the clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the clip": {
+      "main": [
+        [
+          {
+            "node": "Clip ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clip ready?": {
+      "main": [
+        [
+          {
+            "node": "Get an upload URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keep waiting for the clip?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep waiting for the clip?": {
+      "main": [
+        [
+          {
+            "node": "Wait for the clip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: generation failed or took too long",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get an upload URL": {
+      "main": [
+        [
+          {
+            "node": "Upload URL ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload URL ready?": {
+      "main": [
+        [
+          {
+            "node": "Download the app recording",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: ClipUGC refused the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the app recording": {
+      "main": [
+        [
+          {
+            "node": "Upload the app recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload the app recording": {
+      "main": [
+        [
+          {
+            "node": "Make the finished video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make the finished video": {
+      "main": [
+        [
+          {
+            "node": "Finished video started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finished video started?": {
+      "main": [
+        [
+          {
+            "node": "Wait for the finished video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: ClipUGC refused the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for the finished video": {
+      "main": [
+        [
+          {
+            "node": "Check the finished video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the finished video": {
+      "main": [
+        [
+          {
+            "node": "Finished video ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finished video ready?": {
+      "main": [
+        [
+          {
+            "node": "Get the download link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keep waiting for the finished video?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep waiting for the finished video?": {
+      "main": [
+        [
+          {
+            "node": "Wait for the finished video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: generation failed or took too long",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the download link": {
+      "main": [
+        [
+          {
+            "node": "Download link ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download link ready?": {
+      "main": [
+        [
+          {
+            "node": "Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: ClipUGC refused the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

@@ -1,0 +1,63 @@
+{
+  "name": "n8n-nodes-clipugc",
+  "version": "0.1.0",
+  "description": "n8n community node for ClipUGC. Make short vertical UGC videos for your app with AI influencers who keep the same face.",
+  "license": "MIT",
+  "homepage": "https://clipugc.com",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "clipugc",
+    "ugc",
+    "ugc-video",
+    "ai-influencer",
+    "video",
+    "app-marketing"
+  ],
+  "author": {
+    "name": "ClipUGC",
+    "email": "team@clipugc.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clipugc/n8n-nodes-clipugc.git"
+  },
+  "scripts": {
+    "build": "n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease",
+    "test": "vitest run"
+  },
+  "files": [
+    "dist",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
+    "credentials": [
+      "dist/credentials/ClipUgcApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/ClipUgc/ClipUgc.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "*",
+    "eslint": "9.32.0",
+    "prettier": "3.6.2",
+    "release-it": "^21.1.0",
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "bugs": {
+    "url": "https://github.com/clipugc/n8n-nodes-clipugc/issues"
+  }
+}

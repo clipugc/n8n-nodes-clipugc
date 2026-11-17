@@ -1,0 +1,317 @@
+{
+  "name": "ClipUGC: UGC video with an AI influencer (ClipUGC node)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "36c494b2-3430-50f8-a664-b159addf2743",
+      "name": "Run workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "13e8e6e5-b27a-473f-b140-4a11d0d260d3",
+              "name": "clip_prompt",
+              "value": "Looks down at the phone, eyes go wide in surprise, then looks up at the camera and smiles",
+              "type": "string"
+            },
+            {
+              "id": "8945e6b1-f6cc-413c-980f-e0bafb6e76c0",
+              "name": "app_recording_url",
+              "value": "https://example.com/your-app-screen-recording.mp4",
+              "type": "string"
+            },
+            {
+              "id": "2f68cef5-93e7-4426-a729-9ec149c51547",
+              "name": "hook_text",
+              "value": "POV: you found the app that plans your whole week",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4528d2ad-95ec-5717-b1ec-2a5c82d6c07b",
+      "name": "Your settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "account",
+        "operation": "getCredits"
+      },
+      "id": "0790d6f8-4a98-558a-abc3-d0aad9d512e5",
+      "name": "Get credits and prices",
+      "type": "n8n-nodes-clipugc.clipUgc",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "clipUgcApi": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "aiInfluencer",
+        "operation": "getAll",
+        "scope": "discover",
+        "returnAll": false,
+        "limit": 1
+      },
+      "id": "609b9b98-a195-5f0c-9211-ede63712ce92",
+      "name": "Pick a public AI influencer",
+      "type": "n8n-nodes-clipugc.clipUgc",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ],
+      "credentials": {
+        "clipUgcApi": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "clip",
+        "operation": "create",
+        "lookId": "={{ $json.look_id }}",
+        "prompt": "={{ $('Your settings').first().json.clip_prompt }}",
+        "duration": 5,
+        "waitForCompletion": true,
+        "pollInterval": 10,
+        "maxWait": 600
+      },
+      "id": "aa437e54-9ff1-57dc-91f9-ebeb502099ae",
+      "name": "Create the clip",
+      "type": "n8n-nodes-clipugc.clipUgc",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ],
+      "credentials": {
+        "clipUgcApi": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "finishedVideo",
+        "operation": "create",
+        "clipId": "={{ $json.id }}",
+        "recordingSource": "url",
+        "recordingUrl": "={{ $('Your settings').first().json.app_recording_url }}",
+        "hookText": "={{ $('Your settings').first().json.hook_text }}",
+        "waitForCompletion": true,
+        "pollInterval": 10,
+        "maxWait": 600
+      },
+      "id": "e50bca55-db3c-51bb-bd36-1ddc0db86b4a",
+      "name": "Create the finished video",
+      "type": "n8n-nodes-clipugc.clipUgc",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        300
+      ],
+      "credentials": {
+        "clipUgcApi": {
+          "id": "REPLACE_ME",
+          "name": "ClipUGC account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39ccf6e6-0983-451e-acfa-c46360f776b7",
+              "name": "download_url",
+              "value": "={{ $json.download_url }}",
+              "type": "string"
+            },
+            {
+              "id": "26333e79-ee28-48d4-a469-54cfdde4c5db",
+              "name": "finished_video_id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "6fa8192b-8532-4b8b-8c27-24200782d99a",
+              "name": "clip_id",
+              "value": "={{ $json.character_video_id }}",
+              "type": "number"
+            },
+            {
+              "id": "9c3ef7d8-80f7-46af-bac4-80020d444324",
+              "name": "credits_before",
+              "value": "={{ $('Get credits and prices').first().json.balance }}",
+              "type": "number"
+            },
+            {
+              "id": "a1f2f744-ed30-4353-88ca-96e92b6b4deb",
+              "name": "clip_cost",
+              "value": "={{ $('Get credits and prices').first().json.costs.clip }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "49c193e0-883a-5701-b88e-ba3f005fb2e5",
+      "name": "Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "width": 560,
+        "height": 420,
+        "content": "## ClipUGC: UGC video with an AI influencer\n\nMakes one finished vertical UGC video for your app: a 5 second silent reaction clip of an AI influencer, then your app screen recording, with your hook line on top.\n\n**Set up**\n1. Install the community node `n8n-nodes-clipugc` (Settings, then Community Nodes).\n2. Create a ClipUGC API key: ClipUGC Dashboard, then API Keys. API keys need the Professional or Business plan.\n3. Create a **ClipUGC API** credential in n8n, paste the key, and select it in the four ClipUGC nodes.\n4. Fill in **Your settings**: the clip prompt, a direct link to your screen recording, and the hook line.\n5. Click **Execute workflow**. **Result** holds `download_url`. The link works for 30 minutes.\n\nThe two create nodes wait until ClipUGC is done. They check every 10 seconds and stop waiting after 10 minutes.\n"
+      },
+      "id": "fde4ba14-2956-5a15-adf7-2a488faf4888",
+      "name": "Note: start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "width": 420,
+        "height": 260,
+        "color": 5,
+        "content": "## Want your own AI influencer?\n\nSwap **Pick a public AI influencer** for a ClipUGC node set to **AI Influencer > Create** and describe the person. It also returns `look_id`, so the next node works as it is.\n\nTo reuse the same AI influencer in every run, keep the `look_id` and type it into **Create the clip**.\n"
+      },
+      "id": "ac2086f7-4e61-5330-bc0e-253036468a7d",
+      "name": "Note: own AI influencer",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "width": 560,
+        "height": 300,
+        "color": 3,
+        "content": "## If a ClipUGC node stops\n\n**Your ClipUGC plan does not include API access** (HTTP 402, code 1002): the key belongs to an account without the Professional or Business plan.\n\n**Not enough ClipUGC credits** (code 1003): the account can not pay for this step. Nothing was charged.\n\n**ClipUGC could not make this clip**: the generation ended as failed. Its credits were returned. Change the prompt or run again.\n"
+      },
+      "id": "d43ee3c5-ee05-5187-b575-44e64db720fa",
+      "name": "Note: messages",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        500
+      ]
+    }
+  ],
+  "connections": {
+    "Run workflow": {
+      "main": [
+        [
+          {
+            "node": "Your settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your settings": {
+      "main": [
+        [
+          {
+            "node": "Get credits and prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get credits and prices": {
+      "main": [
+        [
+          {
+            "node": "Pick a public AI influencer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick a public AI influencer": {
+      "main": [
+        [
+          {
+            "node": "Create the clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create the clip": {
+      "main": [
+        [
+          {
+            "node": "Create the finished video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create the finished video": {
+      "main": [
+        [
+          {
+            "node": "Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

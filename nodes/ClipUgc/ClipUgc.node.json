@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-clipugc.clipUgc",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content"],
+	"alias": ["UGC", "AI influencer", "UGC video", "video", "app marketing", "TikTok", "Reels", "Shorts"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://clipugc.com/docs/api"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://clipugc.com/docs/api"
+			}
+		]
+	}
+}
